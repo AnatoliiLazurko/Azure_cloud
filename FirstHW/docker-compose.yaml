@@ -33,9 +33,14 @@ services:
 
   api.user.0:
     build: ./backend/user
+    # Этот метод удобен для режима разработки
+    # когда речь будет идти о публикции приложения
+    # эти команды нужно запускать в Dockerfile
     command: sh -c " npm install && npm start "
     environment:
       - SERVER_NAME="Api Jonny"
+    # режим подключения диска так же используется только в режиме разработки
+    # он не подходит для публикации приложения на сервер (в облако)
     volumes:
       - ./backend/user/src:/usr/src/app
 
@@ -65,3 +70,12 @@ services:
   # Адаптер для сокет соединений
   websocket.redis:
     image: redis:alpine
+
+  
+  # MongoDB
+  db.mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+    env_file:
+      - ./.env
