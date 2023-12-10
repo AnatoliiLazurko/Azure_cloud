@@ -23,6 +23,7 @@ services:
       - ./frontend/public/src:/usr/src/app  
 
   front.admin:
+    container_name: front.admin
     build: ./frontend/admin
     command: sh -c " npm install && npm start "
     volumes:

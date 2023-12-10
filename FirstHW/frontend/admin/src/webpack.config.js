@@ -9,7 +9,9 @@ module.exports = {
   // інші налаштування...
 
   devServer: {
-    // інші налаштування devServer...
-    publicPath: '/admin',
+    static: {
+      directory: path.join(__dirname, 'assets'),
+      publicPath: '/admin',
+    },
   },
 };
