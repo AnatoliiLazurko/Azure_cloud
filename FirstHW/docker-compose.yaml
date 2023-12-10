@@ -14,6 +14,7 @@ services:
       - api.user.2
       - front.admin
       - front.public
+      - websocket.sunny
 
 
   front.public:
@@ -53,3 +54,14 @@ services:
       - ./backend/user/src:/usr/src/app
     environment:
       - SERVER_NAME="Api Funny"
+
+  
+  websocket.sunny:
+    build: ./notifications/websocket
+    command: sh -c " npm install && npm start "
+    volumes:
+      - ./notifications/websocket/src:/usr/src/app
+  
+  # Адаптер для сокет соединений
+  websocket.redis:
+    image: redis:alpine
