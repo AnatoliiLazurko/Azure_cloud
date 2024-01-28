@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 require('dotenv').config();
 const { PORT, MONGO_URL } = process.env;
 
@@ -13,6 +14,15 @@ mongoose.connect(MONGO_URL)
 //EXPRESS
 const app = express();
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+const AuthRouter = require('./routes/auth-router');
+const FakeImageRouter = require('./routes/fakeImage-router');
+
+app.use('/api', AuthRouter);
+app.use('/api', FakeImageRouter);
+app.use('/storage', express.static(path.join(__dirname, 'storage')));
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');
