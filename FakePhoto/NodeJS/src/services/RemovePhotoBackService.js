@@ -3,6 +3,7 @@ const FakeImageModel = require('../models/FakeImageModel');
 const { BlobServiceClient } = require('@azure/storage-blob');
 require('dotenv').config();
 const { AZURE_STORAGE_CONTAINER, AZURE_STORAGE_CONNECTION_STRING, AZURE_STORAGE_URL, XIMILAR_API_TOKEN } = process.env;
+const MixPhotoService = require('../services/MixPhotoService');
 
 async function removePhotoBackService(photoId) {
     const fakePhoto = await FakeImageModel.findById(photoId);
@@ -47,6 +48,8 @@ async function removePhotoBackService(photoId) {
         await fakePhoto.save();
 
         //console.log("Remove background finished!");
+        const test = MixPhotoService.mixPhotoService(fakePhoto._id);
+        return test;
 
     } catch (error) {
         console.error("Error removing background:", error.message);
