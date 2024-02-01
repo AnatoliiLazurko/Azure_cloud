@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
 
 const fakeImageSchema = new mongoose.Schema({
+    _id: mongoose.Schema.Types.ObjectId,
     // Технічні дані
     name: { type: String, },
 
@@ -31,16 +33,6 @@ const fakeImageSchema = new mongoose.Schema({
     // Результатируюча фотографія
     result_photo_url: { type: String, },
     finish_at: { type: Date, },
-
-    // Тимчасові мітки - створення та оновлення запису в базі
-    created_at: {
-        type: Date,
-        default: Date.now,
-    },
-    updated_at: {
-        type: Date,
-        default: Date.now,
-    },
   
 }, { timestamps: true });
 

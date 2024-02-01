@@ -1,10 +1,14 @@
+const mongoose = require('mongoose');
+const { Types } = mongoose;
 const path = require('path');
 const fs = require('fs').promises;
 const { v4: uuidv4 } = require('uuid');
 const url = require('url');
 const { BlobServiceClient } = require('@azure/storage-blob');
+const FakeImageModel = require('../models/FakeImageModel');
+const ResizePhotoService = require('../services/ResizePhotoService');
 require('dotenv').config();
-const { AZURE_STORAGE_NAME, AZURE_STORAGE_KEY, AZURE_STORAGE_CONTAINER, AZURE_STORAGE_URL, AZURE_STORAGE_CONNECTION_STRING } = process.env;
+const { AZURE_STORAGE_CONTAINER, AZURE_STORAGE_CONNECTION_STRING } = process.env;
 
 async function uploadPhotoService(req) {
     const fakePhoto = {
@@ -12,16 +16,19 @@ async function uploadPhotoService(req) {
         author_id: req.user.id,
         original_photo_url: '',
         original_back_url: '',
-        id: uuidv4(),
+        _id: new Types.ObjectId(),
     };
 
     // fakePhoto.original_photo_url = await saveFile(req.files.photo, req.user.id, fakePhoto.id, 'photo');
     // fakePhoto.original_back_url = await saveFile(req.files.back, req.user.id, fakePhoto.id, 'back');
 
-    fakePhoto.original_photo_url = await uploadToBlobStorage(req.files.photo, req.user.id, fakePhoto.id, 'photo');
-    fakePhoto.original_back_url = await uploadToBlobStorage(req.files.back, req.user.id, fakePhoto.id, 'back');
+    fakePhoto.original_photo_url = await uploadToBlobStorage(req.files.photo, req.user.id, fakePhoto._id, 'photo');
+    fakePhoto.original_back_url = await uploadToBlobStorage(req.files.back, req.user.id, fakePhoto._id, 'back');
 
-    return fakePhoto;
+    
+    const saveFakeImage = await FakeImageModel.create(fakePhoto);
+    const test = ResizePhotoService.resizePhotoService(saveFakeImage._id);
+    return test; 
 }
 
 async function saveFile(file, userId, fakePhotoId, type) {
@@ -49,10 +56,8 @@ async function uploadToBlobStorage(file, userId, fakePhotoId, type) {
     const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
     const containerClient = blobServiceClient.getContainerClient(AZURE_STORAGE_CONTAINER);
 
-    const fileExtension = path.extname(file[0].originalname);
-    const fileName = `${type}-${fakePhotoId}-${uuidv4()}${fileExtension}`;
+    const blobName = `${userId.toString()}/${fakePhotoId.toString()}/${type}.jpg`;
 
-    const blobName = `${userId.toString()}/${fakePhotoId.toString()}/${fileName}`;
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
     const fileContent = await fs.readFile(file[0].path);
