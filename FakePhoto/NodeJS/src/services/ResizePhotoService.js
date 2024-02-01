@@ -3,6 +3,7 @@ const { BlobServiceClient } = require('@azure/storage-blob');
 const FakeImageModel = require('../models/FakeImageModel');
 require('dotenv').config();
 const { AZURE_STORAGE_CONTAINER, AZURE_STORAGE_CONNECTION_STRING, AZURE_STORAGE_URL } = process.env;
+const RemovePhotoBackService = require('../services/RemovePhotoBackService');
 
 const maxWidth = 800;
 const maxHeight = 600;
@@ -54,6 +55,9 @@ async function resizePhotoService(photoId) {
     fakePhoto.resize_back_url = `${AZURE_STORAGE_URL}/${containerName}/${fileDir}back_resize.jpg`;
     fakePhoto.resized_at = new Date();
     await fakePhoto.save();
+
+    const test = RemovePhotoBackService.removePhotoBackService(fakePhoto._id);
+    return test;
 }
 
 module.exports = { resizePhotoService };
