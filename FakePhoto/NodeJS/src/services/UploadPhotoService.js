@@ -6,7 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 const url = require('url');
 const { BlobServiceClient } = require('@azure/storage-blob');
 const FakeImageModel = require('../models/FakeImageModel');
-const ResizePhotoService = require('../services/ResizePhotoService');
+const ResizePhotoJob = require('../jobs/ResizePhotoJob');
 require('dotenv').config();
 const { AZURE_STORAGE_CONTAINER, AZURE_STORAGE_CONNECTION_STRING } = process.env;
 
@@ -27,8 +27,13 @@ async function uploadPhotoService(req) {
 
     
     const saveFakeImage = await FakeImageModel.create(fakePhoto);
-    const test = ResizePhotoService.resizePhotoService(saveFakeImage._id);
-    return test; 
+
+    // При тестувані
+    // const test = ResizePhotoService.resizePhotoService(saveFakeImage._id);
+    // return test; 
+
+    // Resize Photo Job
+    await ResizePhotoJob.addJobToQueue(saveFakeImage._id, 'resizePhoto');
 }
 
 async function saveFile(file, userId, fakePhotoId, type) {

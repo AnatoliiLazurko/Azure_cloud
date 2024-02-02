@@ -4,6 +4,7 @@ const { BlobServiceClient } = require('@azure/storage-blob');
 require('dotenv').config();
 const { AZURE_STORAGE_CONTAINER, AZURE_STORAGE_CONNECTION_STRING, AZURE_STORAGE_URL, XIMILAR_API_TOKEN } = process.env;
 const MixPhotoService = require('../services/MixPhotoService');
+const MixPhotoJob = require('../jobs/MixPhotoJob');
 
 async function removePhotoBackService(photoId) {
     const fakePhoto = await FakeImageModel.findById(photoId);
@@ -47,9 +48,13 @@ async function removePhotoBackService(photoId) {
         fakePhoto.remove_bg_at = new Date();
         await fakePhoto.save();
 
+        // При тестувані
         //console.log("Remove background finished!");
-        const test = MixPhotoService.mixPhotoService(fakePhoto._id);
-        return test;
+        // const test = MixPhotoService.mixPhotoService(fakePhoto._id);
+        // return test;
+
+        // Mix Photo Job
+        MixPhotoJob.addJobToQueue(fakePhoto._id, 'mixPhoto');
 
     } catch (error) {
         console.error("Error removing background:", error.message);

@@ -4,6 +4,7 @@ const FakeImageModel = require('../models/FakeImageModel');
 require('dotenv').config();
 const { AZURE_STORAGE_CONTAINER, AZURE_STORAGE_CONNECTION_STRING, AZURE_STORAGE_URL } = process.env;
 const RemovePhotoBackService = require('../services/RemovePhotoBackService');
+const RemovePhotoBackJob = require('../jobs/RemovePhotoBackJob');
 
 const maxWidth = 800;
 const maxHeight = 600;
@@ -56,8 +57,12 @@ async function resizePhotoService(photoId) {
     fakePhoto.resized_at = new Date();
     await fakePhoto.save();
 
-    const test = RemovePhotoBackService.removePhotoBackService(fakePhoto._id);
-    return test;
+    // При тестувані
+    // const test = RemovePhotoBackService.removePhotoBackService(fakePhoto._id);
+    // return test;
+
+    // Remove Photo Back Job
+    await RemovePhotoBackJob.addJobToQueue(fakePhoto._id, 'removePhotoBack');
 }
 
 module.exports = { resizePhotoService };
